@@ -3,6 +3,9 @@ const env = process.env;
 
 const isProd = env.NODE_ENV === 'production';
 
+if (isProd && !env.DATABASE_URL) {
+  throw new Error('DATABASE_URL is not set. In Render → Environment, add DATABASE_URL = your database\'s Internal Database URL.');
+}
 if (isProd && (!env.JWT_SECRET || env.JWT_SECRET.length < 32)) {
   throw new Error('JWT_SECRET must be set (at least 32 characters) in production.');
 }
