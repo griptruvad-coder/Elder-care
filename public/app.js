@@ -17,14 +17,16 @@ const waAttrs = hasWA ? `href="${waLink}" target="_blank" rel="noopener"` : `hre
    All photos live in images/. To swap one, replace the file (keep the name) or change "f" below.
    "pos" sets which part of the photo stays visible when it is cropped (x% y%). */
 const PH = {
-  anniversary: { f: 'anniversary-couple',   pos: '50% 28%', alt: 'An elderly couple in garlands and festive clothes cutting a cake together' },
-  qutubCouple: { f: 'couple-qutub-delhi',   pos: '50% 35%', alt: 'An elderly couple smiling together on an outing near Qutub Minar, Delhi' },
-  hillsDadi:   { f: 'smiling-dadi-hills',   pos: '62% 30%', alt: 'A smiling elderly woman in a colourful headscarf sitting outdoors in the hills' },
-  dadaji:      { f: 'dadaji-portrait',      pos: '50% 35%', alt: 'Portrait of an elderly Indian man with a white moustache' },
-  grandchild:  { f: 'dadi-with-grandchild', pos: '40% 45%', alt: 'A grandmother in a saree gently holding a small child on her lap outdoors' },
-  laughing:    { f: 'grandparents-laughing',pos: '50% 40%', alt: 'Grandparents laughing and playing with a baby in their garden' },
-  beads:       { f: 'dadi-beads',           pos: '55% 30%', alt: 'A smiling elderly woman with glasses stringing a bead necklace' },
-  holi:        { f: 'holi-dadaji',          pos: '50% 35%', alt: 'An elderly man in an orange cap with Holi colours on his face' }
+  walk:        { f: 'companion-walk-society',  pos: '47% 40%', alt: 'A young companion walking arm in arm with an elderly man with a walking stick in a city housing society' },
+  medicine:    { f: 'companion-medicine-help', pos: '50% 35%', alt: 'A young companion helping an elderly woman with her weekly medicine box at home' },
+  videoCall:   { f: 'video-call-couple',       pos: '55% 40%', alt: 'An elderly couple in their city flat smiling and waving at their son on a video call' },
+  chai:        { f: 'chai-couple-city-flat',   pos: '50% 35%', alt: 'An elderly couple sharing chai on the sofa of their city apartment' },
+  anniversary: { f: 'anniversary-couple',      pos: '50% 28%', alt: 'An elderly couple in garlands and festive clothes cutting a cake together' },
+  laughing:    { f: 'grandparents-laughing',   pos: '50% 40%', alt: 'Grandparents laughing and playing with a baby in their garden' },
+  beads:       { f: 'dadi-beads',              pos: '55% 30%', alt: 'A smiling elderly woman with glasses stringing a bead necklace' },
+  // Small round photos: crop tightly on one face.
+  dadiFace:    { f: 'companion-medicine-help', pos: '74% 22%', alt: 'A smiling elderly woman at home' },
+  dadajiFace:  { f: 'video-call-couple',       pos: '24% 22%', alt: 'A smiling elderly man at home' }
 };
 const img = (p, { cls = '', lazy = true } = {}) =>
   `<img class="${cls}" src="images/${p.f}.jpg" alt="${p.alt}" style="object-position:${p.pos}" ${lazy ? 'loading="lazy"' : 'fetchpriority="high"'} decoding="async">`;
@@ -135,12 +137,12 @@ const pageTop = (ey, h, p, photo) => `<section class="pagetop wrap">
 const tiles = (items) => `<div class="tiles">${items.map((x, i) => `<article class="tile reveal" style="--d:${(i % 3) * 100}ms"><span class="tile-icon" aria-hidden="true">${x[2] || '✿'}</span><h3>${x[0]}</h3><p>${x[1]}</p></article>`).join('')}</div>`;
 
 const gallerySlides = [
-  [PH.grandchild, 'Time together, every day.', 'Someone who sits with them, listens, and stays a while.'],
-  [PH.qutubCouple, 'Little outings, at their own pace.', 'A familiar park, an old monument, the market — no need to hurry.'],
+  [PH.walk, 'A walk, at their own pace.', 'An arm to hold on the society path — and someone to chat with all the way.'],
+  [PH.chai, 'Chai pe charcha, every day.', 'Stories, the newspaper, a little laughter. Company is the best part of the day.'],
+  [PH.medicine, 'Dawai, on time. With a smile.', 'Gentle reminders and help with the weekly pill box, never a lecture.'],
+  [PH.videoCall, 'Close, even from far away.', 'Help with video calls, so the family is just one tap away.'],
   [PH.laughing, 'More laughter in the house.', 'The kind of everyday joy that makes a home feel full again.'],
-  [PH.hillsDadi, 'That smile is the goal.', 'Every visit is planned around what makes them happy.'],
-  [PH.anniversary, 'Every celebration, celebrated.', 'Birthdays, anniversaries and festivals never go unnoticed.'],
-  [PH.holi, 'More friends. More rang.', 'Festivals and weekend gatherings with the ApnaSa family.']
+  [PH.anniversary, 'Every celebration, celebrated.', 'Birthdays, anniversaries and festivals never go unnoticed.']
 ];
 const gallery = () => `<section class="section gallery-section"><div class="wrap">
   <div class="gallery-heading">
@@ -183,9 +185,9 @@ const home = () => `
 
     <div class="hero-art">
       ${toran()}
-      <figure class="arch">${img(PH.anniversary, { lazy: false })}</figure>
-      <figure class="bubble bubble-1">${img(PH.hillsDadi)}</figure>
-      <figure class="bubble bubble-2">${img(PH.dadaji)}</figure>
+      <figure class="arch">${img(PH.walk, { lazy: false })}</figure>
+      <figure class="bubble bubble-1">${img(PH.dadiFace)}</figure>
+      <figure class="bubble bubble-2">${img(PH.dadajiFace)}</figure>
       <p class="hand-note">Best part of their day?<br>Someone who shows up. <span>♡</span>
         <svg viewBox="0 0 80 50" aria-hidden="true"><path d="M5 5 C 30 10, 50 25, 70 42 M58 42 L72 44 L68 30"/></svg>
       </p>
@@ -250,7 +252,7 @@ const home = () => `
 
 <section class="section peach">
   <div class="wrap split">
-    <figure class="story-photo reveal">${img(PH.beads)}<figcaption class="hand">Saath. Har din.</figcaption></figure>
+    <figure class="story-photo reveal">${img(PH.medicine)}<figcaption class="hand">Saath. Har din.</figcaption></figure>
     <div class="reveal" style="--d:120ms">
       <span class="eyebrow">A LITTLE CLOSER, EVEN FROM FAR AWAY</span>
       <h2>We don’t replace your love.<br><em>We carry it to them.</em></h2>
@@ -310,7 +312,7 @@ const contact = () => `${pageTop('WE’RE HERE TO LISTEN', 'Every parent has a s
 const pages = {
   home,
   plans: () => `${pageTop('OUR MONTHLY CARE PLANS', 'A little care.<br><em>A lot of difference.</em>', 'Choose Basic, Premium or Super Premium based on the company, walks and daily support your parent needs.', PH.beads)}<section class="section wrap tight">${planCards()}</section>${cta()}`,
-  how: () => `${pageTop('HOW IT WORKS', 'Good care starts<br><em>with getting to know you.</em>', 'From your first conversation to their first visit, we keep things simple.', PH.grandchild)}<section class="section wrap tight">${steps()}${disclaimer}</section>${cta()}`,
+  how: () => `${pageTop('HOW IT WORKS', 'Good care starts<br><em>with getting to know you.</em>', 'From your first conversation to their first visit, we keep things simple.', PH.walk)}<section class="section wrap tight">${steps()}${disclaimer}</section>${cta()}`,
   faq: () => `${pageTop('COMMON QUESTIONS', 'A little clarity.<br><em>A little peace of mind.</em>', 'Honest answers to help your family choose.')}<section class="section wrap tight">${faq()}</section>${cta()}`,
   contact,
   about: () => `${pageTop('ABOUT APNASA', 'Care that feels<br><em>like family.</em>', 'ApnaSa is built around a simple thought: everyone deserves to feel seen, heard and cared for as they grow older.', PH.anniversary)}
@@ -320,10 +322,10 @@ const pages = {
       <p>We respect your parent’s choice, routine and independence. Care should feel comfortable, never forced — like someone who is <i>apna sa</i>, almost family.</p></div>
       <div class="storyart reveal" style="--d:120ms">${diya()}<strong>A little time.<br>A listening ear.<br>A feeling of home.</strong><small class="hand">That’s the heart of ApnaSa.</small></div>
     </div></section>${cta()}`,
-  nri: () => `${pageTop('FOR NRI FAMILIES', 'You may live far away.<br><em>Your love can still be close.</em>', 'When your parents are in India and you are abroad, a familiar person nearby can make daily life feel easier.', PH.laughing)}<section class="section wrap tight">${tiles([['Someone nearby', 'A companion visits your parent, spends time with them and helps with everyday needs.', '🏡'], ['Help with appointments', 'Support with planning and attending doctor, lab and pharmacy visits.', '🩺'], ['A connection to home', 'Plan-based family updates and one care coordinator help you stay involved.', '💌']])}</section>${cta()}`,
-  working: () => `${pageTop('FOR WORKING FAMILIES', 'You care deeply.<br><em>Your days are full.</em>', 'Work, children and daily responsibilities can make it hard to visit every day. A little extra support can help.', PH.hillsDadi)}<section class="section wrap tight">${tiles([['Company during the day', 'A daily one-hour visit gives your parent time to talk, share stories and enjoy a favourite activity.', '☕'], ['Help with the little things', 'Reminders, small errands and doctor-visit support make everyday tasks easier.', '🤲'], ['Care around their routine', 'Choose a preferred visit time and tell us what works for your parent.', '⏰']])}</section>${cta()}`,
-  club: () => `${pageTop('SENIOR ACTIVITY CLUB', 'More friends.<br><em>More reasons to smile.</em>', 'Time together can turn an ordinary week into something to look forward to. Activities are planned around comfort, interest and local availability.', PH.holi)}<section class="section wrap tight">${tiles([['Stories & games', 'Share memories, enjoy board games and make new friends.', '🎲'], ['Music & bhajan', 'Sing along, listen to favourite songs and enjoy familiar tunes.', '🎶'], ['Gentle movement', 'Walks and suitable yoga activities, based on each parent’s comfort and health.', '🧘'], ['Hobbies & creativity', 'Reading, art and simple creative activities that bring people together.', '🎨'], ['Little outings', 'A nearby park, temple, café or community place for a change of scene.', '🛕'], ['Celebrate together', 'Festivals and weekend gatherings to share happy moments.', '🪔']])}<p class="tiny center">Basic and Premium include one weekly senior activity. Super Premium also includes weekend activities. Ask the care team about local schedules and any outing costs.</p></section>${gallery()}${cta()}`,
-  safety: () => `${pageTop('SAFETY & TRUST', 'Kindness comes with<br><em>responsibility.</em>', 'Respect, familiar faces and clear communication are at the heart of our care.', PH.dadaji)}<section class="section wrap tight">${tiles([['Checked & trained', 'Companions are background-checked and trained before starting work.', '🛡️'], ['A familiar face', 'We aim to keep the same companion, with a trained backup when needed.', '🙂'], ['Your parent’s choice', 'We respect their routine, comfort, language and independence.', '🌼'], ['One care coordinator', 'A single person helps with schedules, feedback and special requests.', '📞'], ['Privacy matters', 'Share only the details needed to arrange care. This enquiry preview does not store or send your information.', '🔒'], ['Emergency support', 'Companions contact family or a local emergency contact and help coordinate support. This is not an emergency medical service.', '🚑']])}${disclaimer}</section>${cta()}`
+  nri: () => `${pageTop('FOR NRI FAMILIES', 'You may live far away.<br><em>Your love can still be close.</em>', 'When your parents are in India and you are abroad, a familiar person nearby can make daily life feel easier.', PH.videoCall)}<section class="section wrap tight">${tiles([['Someone nearby', 'A companion visits your parent, spends time with them and helps with everyday needs.', '🏡'], ['Help with appointments', 'Support with planning and attending doctor, lab and pharmacy visits.', '🩺'], ['A connection to home', 'Plan-based family updates and one care coordinator help you stay involved.', '💌']])}</section>${cta()}`,
+  working: () => `${pageTop('FOR WORKING FAMILIES', 'You care deeply.<br><em>Your days are full.</em>', 'Work, children and daily responsibilities can make it hard to visit every day. A little extra support can help.', PH.medicine)}<section class="section wrap tight">${tiles([['Company during the day', 'A daily one-hour visit gives your parent time to talk, share stories and enjoy a favourite activity.', '☕'], ['Help with the little things', 'Reminders, small errands and doctor-visit support make everyday tasks easier.', '🤲'], ['Care around their routine', 'Choose a preferred visit time and tell us what works for your parent.', '⏰']])}</section>${cta()}`,
+  club: () => `${pageTop('SENIOR ACTIVITY CLUB', 'More friends.<br><em>More reasons to smile.</em>', 'Time together can turn an ordinary week into something to look forward to. Activities are planned around comfort, interest and local availability.', PH.laughing)}<section class="section wrap tight">${tiles([['Stories & games', 'Share memories, enjoy board games and make new friends.', '🎲'], ['Music & bhajan', 'Sing along, listen to favourite songs and enjoy familiar tunes.', '🎶'], ['Gentle movement', 'Walks and suitable yoga activities, based on each parent’s comfort and health.', '🧘'], ['Hobbies & creativity', 'Reading, art and simple creative activities that bring people together.', '🎨'], ['Little outings', 'A nearby park, temple, café or community place for a change of scene.', '🛕'], ['Celebrate together', 'Festivals and weekend gatherings to share happy moments.', '🪔']])}<p class="tiny center">Basic and Premium include one weekly senior activity. Super Premium also includes weekend activities. Ask the care team about local schedules and any outing costs.</p></section>${gallery()}${cta()}`,
+  safety: () => `${pageTop('SAFETY & TRUST', 'Kindness comes with<br><em>responsibility.</em>', 'Respect, familiar faces and clear communication are at the heart of our care.', PH.chai)}<section class="section wrap tight">${tiles([['Checked & trained', 'Companions are background-checked and trained before starting work.', '🛡️'], ['A familiar face', 'We aim to keep the same companion, with a trained backup when needed.', '🙂'], ['Your parent’s choice', 'We respect their routine, comfort, language and independence.', '🌼'], ['One care coordinator', 'A single person helps with schedules, feedback and special requests.', '📞'], ['Privacy matters', 'Share only the details needed to arrange care. This enquiry preview does not store or send your information.', '🔒'], ['Emergency support', 'Companions contact family or a local emergency contact and help coordinate support. This is not an emergency medical service.', '🚑']])}${disclaimer}</section>${cta()}`
 };
 const pageTitles = { plans: 'Care Plans', how: 'How It Works', nri: 'For NRI Families', working: 'For Working Families', club: 'Senior Activity Club', about: 'About Us', safety: 'Safety & Trust', faq: 'Common Questions', contact: 'Talk to Us' };
 
