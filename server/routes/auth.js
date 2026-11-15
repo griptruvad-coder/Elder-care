@@ -2,7 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { z } = require('zod');
 const { OAuth2Client } = require('google-auth-library');
-const rateLimit = require('express-rate-limit');
+const { limiter } = require('../lib/limits');
 const db = require('../db');
 const { adminEmails, googleClientId } = require('../config');
 const { setSession, clearSession, publicUser, requireLogin } = require('../lib/auth');
@@ -12,7 +12,7 @@ const router = express.Router();
 const google = new OAuth2Client();
 
 // Slow down password guessing: 20 attempts per 15 minutes per IP.
-const authLimiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 20, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: 'Too many attempts. Please wait a few minutes and try again.' } });
+const authLimiter = limiter({ windowMs: 15 * 60 * 1000, limit: 20, message: { error: 'Too many attempts. Please wait a few minutes and try again.' } });
 
 const roleFor = email => adminEmails.includes(email.toLowerCase()) ? 'admin' : 'family';
 

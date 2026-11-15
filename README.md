@@ -48,6 +48,19 @@ DATABASE_URL=postgres://user:pass@localhost:5432/apnasa_test npm test
 4. Razorpay → **Webhooks** → add `https://YOUR-SITE/api/webhooks/razorpay`, choose a secret (→ `RAZORPAY_WEBHOOK_SECRET`), tick the `subscription.*` events.
 5. Test with Razorpay test cards / UPI. For live: complete KYC, switch to Live keys, and run step 3 again with live keys.
 
+
+## Frontend on Netlify (backend stays on Render)
+
+`netlify.toml` serves `public/` from Netlify and forwards every `/api/*` request to the Render backend,
+so login cookies, payments and the database keep working.
+
+1. Netlify → **Add new site → Import an existing project** → GitHub → this repo, branch `main`.
+2. Leave build command empty; publish directory is `public` (read from `netlify.toml`).
+3. Deploy. If the Render URL ever changes, update it in `netlify.toml`.
+4. Add the Netlify URL to Google OAuth **Authorized JavaScript origins** when you turn on Google login.
+
+The free Render backend sleeps when idle; the site retries automatically while it wakes up.
+
 ### Day-to-day
 - **Add a companion**: they sign up on the site → admin opens *Dashboard → People* → set role to `companion` → *Parents & companions* → assign.
 - **Make someone admin**: add their email to `ADMIN_EMAILS`, or `npm run make-admin -- email@example.com`.

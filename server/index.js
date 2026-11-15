@@ -2,7 +2,7 @@ const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const rateLimit = require('express-rate-limit');
+const { limiter } = require('./lib/limits');
 const config = require('./config');
 const db = require('./db');
 const { loadUser } = require('./lib/auth');
@@ -44,8 +44,8 @@ app.use(cookieParser());
 app.use(loadUser);
 
 // General API rate limit (per IP).
-app.use('/api', rateLimit({ windowMs: 60 * 1000, limit: 120, standardHeaders: 'draft-7', legacyHeaders: false }));
-app.use('/api/enquiries', rateLimit({ windowMs: 60 * 60 * 1000, limit: 10, message: { error: 'Too many enquiries from here. Please call or WhatsApp us instead.' } }));
+app.use('/api', limiter({ windowMs: 60 * 1000, limit: 120 }));
+app.use('/api/enquiries', limiter({ windowMs: 60 * 60 * 1000, limit: 10, message: { error: 'Too many enquiries from here. Please call or WhatsApp us instead.' } }));
 
 app.get('/api/health', async (_req, res) => {
   await db.query('SELECT 1');

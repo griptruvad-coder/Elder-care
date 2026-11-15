@@ -23,12 +23,21 @@ const STATUS = {
 };
 const badge = s => { const [t, c] = STATUS[s] || [s, 'muted']; return `<span class="badge ${c}">${esc(t)}</span>`; };
 
-async function api(method, path, body) {
-  const res = await fetch('/api' + path, {
-    method, credentials: 'same-origin',
-    headers: body ? { 'Content-Type': 'application/json' } : {},
-    body: body ? JSON.stringify(body) : undefined
-  });
+async function api(method, path, body, attempt = 0) {
+  let res;
+  try {
+    res = await fetch('/api' + path, {
+      method, credentials: 'same-origin',
+      headers: body ? { 'Content-Type': 'application/json' } : {},
+      body: body ? JSON.stringify(body) : undefined
+    });
+  } catch (e) { res = null; }
+  // The free server sleeps when idle and can take ~a minute to wake up. Retry reads while it starts.
+  if ((!res || [502, 503, 504].includes(res.status)) && method === 'GET' && attempt < 3) {
+    await new Promise(r => setTimeout(r, 4000 * (attempt + 1)));
+    return api(method, path, body, attempt + 1);
+  }
+  if (!res) throw new Error('Could not reach the server. Please check your internet and try again.');
   const data = await res.json().catch(() => ({}));
   if (!res.ok) { const e = new Error(data.error || 'Something went wrong. Please try again.'); e.status = res.status; throw e; }
   return data;

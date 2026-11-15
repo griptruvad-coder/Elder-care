@@ -170,3 +170,11 @@ test('admin stats, cancel, logout', async () => {
   r = await admin('GET', '/api/admin/stats');
   assert.equal(r.status, 401);
 });
+
+test('rate limit uses the real visitor IP sent by Netlify', () => {
+  const { clientIp } = require('../server/lib/limits');
+  const req = h => ({ ip: '10.0.0.1', get: k => h[k.toLowerCase()] });
+  assert.equal(clientIp(req({ 'x-nf-client-connection-ip': '49.36.1.2' })), '49.36.1.2');
+  assert.equal(clientIp(req({})), '10.0.0.1');
+  assert.equal(clientIp(req({ 'x-nf-client-connection-ip': 'not an ip<script>' })), '10.0.0.1');
+});
