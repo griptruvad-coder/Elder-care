@@ -40,6 +40,7 @@ const plans = [
   { name: 'Super Premium', price: '11,999', desc: 'Extra support for a fuller, happier everyday life.',
     items: ['Everything in Premium', 'Daily walk, at your parent’s pace', 'Weekend activities & hobby sessions', 'Special outings & community events', 'Weekly family update', 'Priority support', 'Flexible visit timing'] }
 ];
+const planKey = name => name.toLowerCase().replace(/ /g, '_');
 const planTags = ['A LITTLE EVERYDAY CARE', 'MORE HAPPY MOMENTS', 'A LITTLE EXTRA SUPPORT'];
 
 const disclaimer = `<div class="disclaimer reveal"><span class="di-icon" aria-hidden="true">i</span><div><b>A little clarity, because care matters.</b><br>We provide companionship and daily-life support, not nursing, medical treatment, injections, or emergency medical services. Companions can give medicine reminders and accompany parents to medical visits. In an emergency, call local emergency services or go to the nearest hospital.</div></div>`;
@@ -53,7 +54,7 @@ const planCards = () => `<div class="plans">${plans.map((p, i) => `
     <div class="price"><span class="rupee">₹</span>${p.price}<small>/ month</small></div>
     <small class="sub">Subscription plan</small>
     <ul class="check">${p.items.map(x => `<li>${x}</li>`).join('')}</ul>
-    <a class="button ${i === 1 ? '' : 'outline'}" href="#contact?plan=${encodeURIComponent(p.name)}">Choose ${p.name} →</a>
+    <a class="button ${i === 1 ? '' : 'outline'}" href="#dashboard?plan=${planKey(p.name)}">Choose ${p.name} →</a>
   </article>`).join('')}</div>
   ${disclaimer}
   <p class="center tiny">Walks depend on your parent’s health, comfort and choice. Ask our team about visit duration, travel costs and local activity availability before joining.</p>`;
@@ -291,16 +292,16 @@ const contact = () => `${pageTop('WE’RE HERE TO LISTEN', 'Every parent has a s
   <aside class="reveal">
     <h3>Care starts with understanding.</h3>
     <p>Share their routine, what makes them happy, and where a little help could make a difference.</p>
-    <ul class="check"><li>No payment is taken here</li><li>Choose a plan or ask for guidance</li><li>Share only details you are comfortable sharing</li></ul>
+    <ul class="check"><li>No payment is taken here</li><li>Our care team calls you back</li><li>Share only details you are comfortable sharing</li></ul>
     ${hasWA ? `<a class="button whatsapp" ${waAttrs}>Prefer WhatsApp? Message us</a>` : ''}
-    <div class="formnote"><b>Enquiry preview</b><br>This form creates a summary you can download. It does not send your details to a care team yet. Your details are not saved by this website.</div>
+    <div class="formnote"><b>Your details are safe</b><br>They go only to the ApnaSa care team, and are used only to plan care for your parent.</div>
   </aside>
   <form id="careform" class="reveal" style="--d:120ms">
     <div class="formgrid">${fields.map((f, i) => `<label>${f[0]}${f[2] ? ' *' : ''}${Array.isArray(f[1]) ? `<select name="${f[0]}" id="f${i}">${f[1].map(v => `<option>${v}</option>`).join('')}</select>` : `<input name="${f[0]}" id="f${i}" type="${f[1]}" ${f[2] ? 'required' : ''} ${f[1] === 'number' ? 'min="1" max="120"' : ''}>`}</label>`).join('')}
       <label class="full">Health condition or special need (optional)<textarea name="Health needs" placeholder="Only share what would help us understand their daily support needs."></textarea></label>
       <label class="full">Special request or message<textarea name="Message" placeholder="Their favourite hobbies, daily routine, or anything else you’d like to share."></textarea></label>
-      <label class="consent full"><input type="checkbox" required>I have my parent’s permission to include their details in this summary.</label>
-      <button class="button full big" type="submit">Create my enquiry summary →</button>
+      <label class="consent full"><input type="checkbox" required>I have my parent’s permission to share these details with ApnaSa.</label>
+      <button class="button full big" type="submit">Send to the care team →</button>
     </div>
     <div id="result" aria-live="polite"></div>
   </form>
@@ -441,7 +442,7 @@ function render() {
   if (route === 'top') return;
   app.innerHTML = (pages[route] || home)();
   app.classList.remove('page-in'); void app.offsetWidth; app.classList.add('page-in');
-  document.title = `${route === 'home' || !pages[route] ? 'Care that feels like family' : pageTitles[route]} | ApnaSa`;
+  document.title = `${route === 'home' || !pages[route] ? 'Care that feels like family' : (pageTitles[route] || 'ApnaSa')} | ApnaSa`;
   document.querySelector('nav').classList.remove('open');
   document.body.classList.remove('menu-open');
   document.querySelector('#menu').setAttribute('aria-expanded', 'false');
@@ -450,18 +451,28 @@ function render() {
   window.scrollTo(0, 0);
 
   setupReveal(); setupNotes(); setupRotator(); setupTilt(); setupParallax(); setupCarousel(); setupScrollBits();
+  if (window.afterRender) window.afterRender(route, query || '');
 
   if (route === 'contact') {
     const selected = new URLSearchParams(query).get('plan');
     if (plans.some(p => p.name === selected)) document.querySelector('#f12').value = selected;
-    document.querySelector('#careform').addEventListener('submit', e => {
+    const form = document.querySelector('#careform');
+    form.addEventListener('submit', async e => {
       e.preventDefault();
-      const data = new FormData(e.target);
-      const text = 'ApnaSa — Care enquiry summary\n\n' + [...data.entries()].map(([k, v]) => `${k}: ${v || 'Not provided'}`).join('\n') + '\n\nThis summary has not been sent to a care team.';
-      const url = URL.createObjectURL(new Blob([text], { type: 'text/plain;charset=utf-8' }));
+      const btn = form.querySelector('button[type=submit]');
+      const data = Object.fromEntries([...new FormData(form).entries()].map(([k, v]) => [k, String(v).trim()]).filter(([, v]) => v));
+      btn.disabled = true; btn.classList.add('loading');
       const result = document.querySelector('#result');
-      result.innerHTML = '<div class="result"><b>Your summary is ready. ♡</b><p class="tiny">It has not been sent. Download it for your own records. It contains the personal details you entered.</p><a class="button" id="download" download="ApnaSa-care-enquiry.txt">Download summary ↓</a></div>';
-      document.querySelector('#download').href = url;
+      try {
+        const res = await fetch('/api/enquiries', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.error || 'Could not send. Please try again.');
+        form.classList.add('sent');
+        result.innerHTML = '<div class="result success-card"><div class="tick-anim" aria-hidden="true"><svg viewBox="0 0 52 52"><circle cx="26" cy="26" r="24"/><path d="M15 27l7 7 15-15"/></svg></div><b>Shukriya! Your enquiry has reached us. ♡</b><p class="tiny">Our care team will call you within one working day. You can also create an account to track everything in one place.</p><a class="button" href="#login?mode=signup">Create my account →</a></div>';
+        window.burstPetals && window.burstPetals();
+      } catch (err) {
+        result.innerHTML = `<div class="result error-card"><b>${err.message.replace(/</g, '&lt;')}</b></div>`;
+      } finally { btn.disabled = false; btn.classList.remove('loading'); }
       result.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
   }
@@ -476,4 +487,5 @@ document.querySelector('#menu').addEventListener('click', () => {
   document.body.classList.toggle('menu-open', open);
   document.querySelector('#menu').setAttribute('aria-expanded', String(open));
 });
-render();
+// account.js adds the login and dashboard pages, so wait until every script has loaded.
+document.addEventListener('DOMContentLoaded', render);
