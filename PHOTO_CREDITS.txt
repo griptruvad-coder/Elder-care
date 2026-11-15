@@ -1,0 +1,8 @@
+ApnaSa — photo credits
+
+The photos in images/ were downloaded from Pexels and are used under the Pexels License:
+https://www.pexels.com/license/
+They are stock photos. The people shown are not ApnaSa customers or staff.
+
+Tip: real photos of your own companions with families (with their permission) will build far more trust.
+To swap a photo, replace the file in images/ (keep the same name), or edit the PH list at the top of app.js.
